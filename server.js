@@ -1,5 +1,6 @@
 const express = require('express');
 const utxoRouter = require('./routes/utxos')
+const qvf = require('./utils/qvf-cli')
 const app = express();
 
 app.set("view_engine", "ejs");

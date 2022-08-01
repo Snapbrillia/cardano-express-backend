@@ -22,3 +22,7 @@ Create a file blockfrost.id and put the project key to be able to query blockfro
 `&`
 create a .env file in the root level of the project and add inside
 BLOCK_KEY=THEBLOCKFROSTRAWKEY
+
+### Current status
+When you run the server, and have added Blockfrost key,  go to : http://localhost:8000/utxos
+YOu should see the list of the UTXOS

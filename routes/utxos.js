@@ -1,11 +1,12 @@
 const express = require('express');
+require("dotenv").config();
 const router = express.Router();
 const fetch = require('node-fetch')
 
 router.get('/', async (req, res) => {
 
     let myHeaders = new fetch.Headers();
-    myHeaders.append("project_id", "testnetUEYYJPhM1RhYsHGJaruXq2inBiDcvy56");
+    myHeaders.append("project_id",process.env.BLOCK_KEY);
     myHeaders.append("Accept", "application/json")
     myHeaders.append("Content-Type", "application/json")
     myHeaders.append("Access-Control-Allow-Origin", "*")

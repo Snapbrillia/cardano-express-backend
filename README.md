@@ -16,3 +16,9 @@ In case it does not, install separately
 `npm run dev`
 
 ### All execution scripts are in the package.json file under scripts
+
+### Access Project Key for Blockfrost
+Create a file blockfrost.id and put the project key to be able to query blockfrosts api
+`&`
+create a .env file in the root level of the project and add inside
+BLOCK_KEY=THEBLOCKFROSTRAWKEY

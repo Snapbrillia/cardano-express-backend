@@ -11,3 +11,8 @@ In case it does not, install separately
 `npm i --save-dev nodemon`
 
 
+### Run the server
+
+`npm run dev`
+
+### All execution scripts are in the package.json file under scripts

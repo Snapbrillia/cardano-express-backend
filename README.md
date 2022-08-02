@@ -29,3 +29,10 @@ YOu should see the list of the UTXOS
 
 ### Whatever bash script file u want to execute
 `chmod +x <finename>.sh`
+
+### Logic followed
+1. Loading a function and running it directly from the child_process object was prone to errors
+2. Therefore, the approach we are taking is, one bash file should have the defined functions in (multiple functions)
+3. An additional bash file, which loads the related bash script and invokes the needed function
+With this process it is easier to understand the structure.
+We just need to keep file names clear.

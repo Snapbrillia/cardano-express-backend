@@ -7,3 +7,8 @@ blockfrost.id
 payment.vkey
 payment.skey
 payment.addr
+minting-script.plutus
+validator.plutus
+initial-datum.json
+initial-redeemer.json
+mempty-datum.json

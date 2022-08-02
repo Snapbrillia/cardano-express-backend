@@ -26,3 +26,6 @@ BLOCK_KEY=THEBLOCKFROSTRAWKEY
 ### Current status
 When you run the server, and have added Blockfrost key,  go to : http://localhost:8000/utxos
 YOu should see the list of the UTXOS
+
+### Whatever bash script file u want to execute
+`chmod +x <finename>.sh`

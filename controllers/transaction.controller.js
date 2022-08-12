@@ -1,6 +1,7 @@
 require("dotenv").config();
 const fetch = require("node-fetch");
 const { exec } = require("child_process");
+const { spawn } = require("child_process");
 const e = require("express");
 
 const getAddressUtxos = async (req, res) => {
@@ -23,16 +24,8 @@ const getAddressUtxos = async (req, res) => {
   res.json(fetch_json);
 };
 
-// checks if a user has a wallet by checking if the wallet file exists in the walletKeys folder
-// if it doesnt exist then it creates a new wallet for the user and has the users id as the name of the wallet file
-
-const createServerWallet = async (req, res) => {
-  try {
-    // the user id should be retrieved from the request body but is hardcoded for now
-    const userId = "bd705210-41ae-472f-9b2b-9e9772cb0ab5";
-
-    // checks if the user has a wallet on our server already by using the find command on the walletKeys folder
-    // which is where we are storing the wallets
+const checkIfWalletExists = async (userId) => {
+  return new Promise((resolve) => {
     exec(
       `find ${__dirname}/../WalletKeys -name ` + userId + `*`,
       (error, stdout, stderr) => {
@@ -42,26 +35,39 @@ const createServerWallet = async (req, res) => {
         if (stderr) {
           console.log(`stderr: ${stderr}`);
         }
-        // checks length of stout , if stout length is 0 that means no wallet is found
-        // then we execute the create command to create a new wallet for the user
-        if (stdout.length > 0) {
-          console.log("walletAlreadyExists");
-        } else {
-          exec(
-            `sh ${__dirname}/../bashScripts/wallet-gen.sh ` + userId,
-            (error, stdout, stderr) => {
-              if (error) {
-                console.log(`error: ${error.message}`);
-              }
-              if (stderr) {
-                console.log(`stderr: ${stderr}`);
-              }
-              console.log(`stdout: ${stdout}` + " Wallet Created");
-            }
-          );
-        }
+        resolve(stdout ? true : false);
       }
     );
+  });
+};
+
+// checks if a user has a wallet by checking if the wallet file exists in the walletKeys folder
+// if it doesnt exist then it creates a new wallet for the user and has the users id as the name of the wallet file
+
+const createServerWallet = async (req, res) => {
+  try {
+    // the user id should be retrieved from the request body but is hardcoded for now
+    // checks if the user has a wallet on our server already by using the find command on the walletKeys folder
+    // which is where we are storing the wallets
+    const userId = "bd705210-41ae-472f-9b2b-9e9772cbadadda0ab5a";
+    let message;
+
+    const walletExists = await checkIfWalletExists(userId);
+    if (walletExists) {
+      // wallet already exists
+      message = "wallet already exists";
+    } else {
+      // creates a new wallet for the user since wallet doesnt exist
+      const createWalletCommand = spawn("sh", [
+        __dirname + "/../bashScripts/wallet-gen.sh",
+        userId,
+      ]);
+      createWalletCommand.stdout.on("data", (data) => {
+        console.log(data.toString());
+      });
+      message = "wallet created";
+    }
+    return res.json({ message });
   } catch (err) {
     return res.status(500).json({ err: err });
   }

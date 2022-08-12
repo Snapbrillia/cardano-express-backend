@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 blockfrost.id
+package-lock.json
 .env
 payment.vkey
 payment.skey
@@ -12,4 +13,4 @@ validator.plutus
 initial-datum.json
 initial-redeemer.json
 mempty-datum.json
-/WalletKeys
+/WalletKeys/*

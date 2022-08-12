@@ -5,10 +5,15 @@ export MAGIC='--testnet-magic 1097911063'
 # ==== CHANGE THIS VARIABLE ACCORDINGLY ==== #
 #export CARDANO_NODE_SOCKET_PATH=~/Plutus/plutus/plutus-pioneer-program/code/week06/testnet/node.sock
 #export CARDANO_NODE_SOCKET_PATH=~/plutus-pioneer-program/code/week03/testnet/node.socket
+
 export CARDANO_NODE_SOCKET_PATH=/home/kair/code/snapbrillia/quadraticvoting/testnet/node.socket
+
+# export CARDANO_NODE_SOCKET_PATH=$(ps ax | grep -v grep | grep cardano-wallet | grep testnet | sed -E 's/(.*)node-socket //')
 export preDir="testnet"
 cli="cardano-cli"
 qvf="qvf-cli"
+
+# export qvf="/Users/shanzhang/.cabal/bin/qvf-cli"
 #qvf="cabal run qvf-cli --"
 # ========================================== #
 

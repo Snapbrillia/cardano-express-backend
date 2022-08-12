@@ -7,6 +7,14 @@ module.exports = function (app) {
   );
   app.post(
     "/app/transaction/create-server-wallet",
-    TransactionController.createServerWallet
+    TransactionController.sendCreateProjectTransaction
+  );
+  app.post(
+    "/app/transaction/create-signed-tx",
+    TransactionController.sendCreateProjectSignedTransaction
+  );
+  app.post(
+    "/app/transaction/register-project",
+    TransactionController.registerProject
   );
 };

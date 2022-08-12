@@ -12,3 +12,4 @@ validator.plutus
 initial-datum.json
 initial-redeemer.json
 mempty-datum.json
+/WalletKeys

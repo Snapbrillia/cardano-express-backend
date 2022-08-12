@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Snapbrillia/cardano-express-backend#readme",
   "dependencies": {
+    "@emurgo/cardano-serialization-lib-nodejs": "^11.0.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "node-fetch": "^2.6.6",

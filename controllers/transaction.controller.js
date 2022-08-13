@@ -219,6 +219,8 @@ const sendCreateProjectSignedTransaction = async (req, res) => {
 // invoke the qvf-cli application to create a new project
 const registerProject = async (req, res) => {
   // parameters are hardcoded for now for testing purposes
+  // Query Wallet ADdress to get the ADA
+  // 
   const userId = "testing";
   exec(
     "source " +

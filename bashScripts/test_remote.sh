@@ -44,12 +44,13 @@ get_current_state() {
   last=$(echo $utxosAndHashes | jq length)
   datumValues=""
   for i in $(seq 0 $(expr $last - 1)); do
-    obj=$(echo $utxosAndHashes | jq .[$i])
-    utxo=$(echo $obj | jq .utxo)
-    datumHash=$(echo $obj | jq .datumHash)
-    datumValue=$(get_datum_value_from_hash $(remove_quotes $datumHash) | jq -c .json_value)
+    obj=$(echo $utxosAndHashes | jq '.['$i']')
+    utxo=$(echo $obj | jq '.utxo')
+    datumHash=$(echo $obj | jq '.datumHash')
+    datumValue=$(get_datum_value_from_hash $(remove_quotes $datumHash) | jq -c '.json_value')
     datumValues="$datumValues $datumValue"
   done
+  echo $datumValues
   $qvf merge-datums $datumValues
 }
 
@@ -69,10 +70,10 @@ update_contract() {
   echo $utxoAtScript
 
   # Generate the protocol parameters:
-  $cli query protocol-parameters $MAGIC --out-file $protocols
+  $cli query protocol-parameters --testnet-magic 1097911063 --out-file $protocols
 
   # Construct the transaction:
-  $cli transaction build --babbage-era $MAGIC                            \
+  $cli transaction build --babbage-era --testnet-magic 1097911063                         \
       --tx-in $utxoFromDonor                                             \
       --tx-in-collateral $utxoFromDonor                                  \
       --tx-in $utxoAtScript                                              \
@@ -86,13 +87,13 @@ update_contract() {
       --out-file $preDir/tx.unsigned
   
   # Sign the transaction:
-  $cli transaction sign $MAGIC   \
+  $cli transaction sign --testnet-magic 1097911063   \
       --tx-body-file $preDir/tx.unsigned        \
       --signing-key-file $donorSKeyFile \
       --out-file $preDir/tx.signed
   
   # Submit the transaction:
-  $cli transaction submit $MAGIC --tx-file $preDir/tx.signed
+  $cli transaction submit --testnet-magic 1097911063 --tx-file $preDir/tx.signed
   echo
   $qvf pretty-datum $(cat $updatedDatum)
   echo "DONE."
@@ -187,8 +188,8 @@ contribute_from_with() {
 #            <updated.datum>           \
 #            <action.redeemer>
 register_project() {
-  projectsPKH=$(cat WalletsKeys/$1.pkh)
-  projectsAddr=$(cat WalletsKeys/$1.addr)
+  projectsPKH=$(cat $preDir/$1.pkh)
+  projectsAddr=$(cat $preDir/$1.addr)
   txIn=$(get_first_utxo_of_wallet $projectsAddr)
   obj=$(get_random_utxo_hash_lovelaces $scriptAddr "$policyId$tokenName" 0 9 | jq -c .)
   obj=$(add_datum_value_to_utxo $obj)
@@ -200,5 +201,5 @@ register_project() {
        $currDatum    \
 	     $updatedDatum \
        $action
-  # update_contract $1 $txIn
+  update_contract $1 $txIn
 }

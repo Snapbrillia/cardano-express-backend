@@ -19,7 +19,7 @@ get_first_utxo_of_wallet() {
   curl -H                             \
     "project_id: $AUTH_ID"            \
     "$URL/addresses/$1/utxos"         \
-    | jq .[0]                         \
+    | jq '.[0]'                         \
     | jq -c '(.tx_hash + "#" + (.tx_index|tostring))' \
     | sed 's|[",]||g'
 }
@@ -75,7 +75,7 @@ get_first_utxo_hash_lovelaces() {
 get_random_utxo_hash_lovelaces() {
   rand=$(shuf -i $3-$4 -n 1)
   echo $(get_utxos_hashes_lovelaces $1 $2) \
-    | jq .[$rand]
+    | jq '.['$rand']'
 }
 
 

@@ -38,7 +38,7 @@ const getAddressUtxos = async (req, res) => {
 const checkIfWalletExists = async (userId) => {
   return new Promise((resolve) => {
     exec(
-      `find ${__dirname}/../WalletsKeys -name ` + userId + `*`,
+      `find ${__dirname}/../testnet -name ` + userId + `*`,
       (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);
@@ -142,12 +142,11 @@ const sendCreateProjectTransaction = async (req, res) => {
     // the user id should be retrieved from the request body but is hardcoded for now
     // checks if the user has a wallet on our server already by using the find command on the walletKeys folder
     // which is where we are storing the wallets
-    let walletAdress;
-    const userId = "bd705210-41ae-472f-da9b2b-";
+    const userId = req.body.userId;
     const walletExists = await checkIfWalletExists(userId);
     if (walletExists) {
       walletAdress = fs.readFileSync(
-        __dirname + "/../WalletKeys/" + userId + ".addr",
+        __dirname + "/../testnet/" + userId + ".addr",
         "utf8"
       );
     } else {
@@ -155,7 +154,7 @@ const sendCreateProjectTransaction = async (req, res) => {
     }
 
     // the transaction is built and back to user to sign
-    const lovelaceToSend = 3000000;
+    const lovelaceToSend = 5000000;
     const txBuilder = await initTransactionBuilder();
     const shelleyChangeAddress = Address.from_bytes(
       Buffer.from(changeAddress, "hex")
@@ -219,11 +218,17 @@ const sendCreateProjectSignedTransaction = async (req, res) => {
 // invoke the qvf-cli application to create a new project
 const registerProject = async (req, res) => {
   // parameters are hardcoded for now for testing purposes
-  const userId = "testing";
+  const { userId, projectLabel, requestedAmount } = req.body;
   exec(
     "source " +
       __dirname +
-      "/../bashScripts/test_remote.sh && register_project testing ProjectZ 1000000000",
+      "/../bashScripts/test_remote.sh && register_project" +
+      " " +
+      userId +
+      " " +
+      projectLabel +
+      " " +
+      requestedAmount,
     (err, stdout, stderr) => {
       if (err) {
         console.log(err);

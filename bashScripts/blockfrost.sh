@@ -1,4 +1,5 @@
-. scripts/env.sh
+. $HOME/cardano-express-backend/bashScripts/env.sh
+
 
 AUTH_ID=$(cat ../blockfrost.id)
 URL="https://cardano-testnet.blockfrost.io/api/v0"

@@ -1,5 +1,7 @@
-. scripts/env.sh
-. scripts/blockfrost.sh
+. $HOME/cardano-express-backend/bashScripts/env.sh
+. $HOME/cardano-express-backend/bashScripts/blockfrost.sh
+
+#
 
 scriptAddr="addr_test1wpl9c67dav6n9gjxlyafg6dmsql8tafy3pwd3fy06tu26nqzphnsx"
 policyId=$(cat $preDir/qvf.symbol)
@@ -185,8 +187,8 @@ contribute_from_with() {
 #            <updated.datum>           \
 #            <action.redeemer>
 register_project() {
-  projectsPKH=$(cat $preDir/$1.pkh)
-  projectsAddr=$(cat $preDir/$1.addr)
+  projectsPKH=$(cat WalletsKeys/$1.pkh)
+  projectsAddr=$(cat WalletsKeys/$1.addr)
   txIn=$(get_first_utxo_of_wallet $projectsAddr)
   obj=$(get_random_utxo_hash_lovelaces $scriptAddr "$policyId$tokenName" 0 9 | jq -c .)
   obj=$(add_datum_value_to_utxo $obj)
@@ -198,5 +200,5 @@ register_project() {
        $currDatum    \
 	     $updatedDatum \
        $action
-  update_contract $1 $txIn
+  # update_contract $1 $txIn
 }

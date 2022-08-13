@@ -125,9 +125,12 @@ const createServerWallet = async (userId) => {
       __dirname + "/../bashScripts/wallet-gen.sh",
       userId,
     ]);
-    createWalletCommand.stdout.on("data", (data) => {
-      addr += data.toString();
-    });
+    createWalletCommand.stderr.on("data", (data) => {
+      console.log(`stderr: ${data}`);
+    }),
+      createWalletCommand.stdout.on("data", (data) => {
+        addr += data.toString();
+      });
     createWalletCommand.on("close", () => {
       resolve(addr);
     });
@@ -140,8 +143,7 @@ const sendCreateProjectTransaction = async (req, res) => {
     // checks if the user has a wallet on our server already by using the find command on the walletKeys folder
     // which is where we are storing the wallets
     let walletAdress;
-    const userId =
-      "bd705210-41ae-472f-9b2b-9e9772cbadadda0daadddadaaadddaadadadadaddaab5a";
+    const userId = "bd705210-41ae-472f-da9b2b-";
     const walletExists = await checkIfWalletExists(userId);
     if (walletExists) {
       walletAdress = fs.readFileSync(
@@ -216,35 +218,23 @@ const sendCreateProjectSignedTransaction = async (req, res) => {
 
 // invoke the qvf-cli application to create a new project
 const registerProject = async (req, res) => {
-  try {
-    const userId = "testing";
-    const projectLabel = "ProjectZ";
-    const requestedAmount = 1000000000;
-    // . infront to load the script file
-    const createWalletCommand = spawn("sh", [
+  // parameters are hardcoded for now for testing purposes
+  const userId = "testing";
+  exec(
+    "source " +
       __dirname +
-        "/../bashScripts/test_remote.sh " +
-        userId +
-        " " +
-        projectLabel +
-        " " +
-        requestedAmount,
-    ]);
-
-    createWalletCommand.stderr.on("data", (data) => {
-      console.log(`stderr: ${data}`);
-    });
-
-    createWalletCommand.on("error", (error) => {
-      console.log(`error: ${error.message}`);
-    });
-
-    createWalletCommand.stdout.on("data", (data) => {
-      console.log(data.toString());
-    });
-  } catch (err) {
-    return res.status(500).json({ err: err });
-  }
+      "/../bashScripts/test_remote.sh && register_project testing ProjectZ 1000000000",
+    (err, stdout, stderr) => {
+      if (err) {
+        console.log(err);
+      }
+      if (stderr) {
+        console.log(stderr);
+      }
+      console.log(stdout);
+      return res.json({ stdout });
+    }
+  );
 };
 
 module.exports = {

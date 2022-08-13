@@ -6,7 +6,7 @@ module.exports = function (app) {
     TransactionController.getAddressUtxos
   );
   app.post(
-    "/app/transaction/create-server-wallet",
+    "/app/transaction/create-project-tx",
     TransactionController.sendCreateProjectTransaction
   );
   app.post(

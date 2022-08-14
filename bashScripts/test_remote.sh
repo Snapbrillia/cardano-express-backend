@@ -39,7 +39,7 @@ remoteCLI() {
 }
 
 
-get_current_state() {
+urrent_state() {
   utxosAndHashes=$(get_utxos_hashes_lovelaces $scriptAddr $policyId$tokenName)
   last=$(echo $utxosAndHashes | jq length)
   datumValues=""
@@ -70,10 +70,10 @@ update_contract() {
   echo $utxoAtScript
 
   # Generate the protocol parameters:
-  $cli query protocol-parameters --testnet-magic 1097911063 --out-file $protocols
+  $cli query protocol-parameters $MAGIC --out-file $protocols
 
   # Construct the transaction:
-  $cli transaction build --babbage-era --testnet-magic 1097911063                         \
+  $cli transaction build --babbage-era $MAGIC                         \
       --tx-in $utxoFromDonor                                             \
       --tx-in-collateral $utxoFromDonor                                  \
       --tx-in $utxoAtScript                                              \
@@ -87,13 +87,13 @@ update_contract() {
       --out-file $preDir/tx.unsigned
   
   # Sign the transaction:
-  $cli transaction sign --testnet-magic 1097911063   \
+  $cli transaction sign $MAGIC   \
       --tx-body-file $preDir/tx.unsigned        \
       --signing-key-file $donorSKeyFile \
       --out-file $preDir/tx.signed
   
   # Submit the transaction:
-  $cli transaction submit --testnet-magic 1097911063 --tx-file $preDir/tx.signed
+  $cli transaction submit $MAGIC --tx-file $preDir/tx.signed
   echo
   $qvf pretty-datum $(cat $updatedDatum)
   echo "DONE."

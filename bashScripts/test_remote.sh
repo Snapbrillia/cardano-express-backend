@@ -39,17 +39,18 @@ remoteCLI() {
 }
 
 
-get_current_state() {
+current_state() {
   utxosAndHashes=$(get_utxos_hashes_lovelaces $scriptAddr $policyId$tokenName)
   last=$(echo $utxosAndHashes | jq length)
   datumValues=""
   for i in $(seq 0 $(expr $last - 1)); do
-    obj=$(echo $utxosAndHashes | jq .[$i])
-    utxo=$(echo $obj | jq .utxo)
-    datumHash=$(echo $obj | jq .datumHash)
-    datumValue=$(get_datum_value_from_hash $(remove_quotes $datumHash) | jq -c .json_value)
+    obj=$(echo $utxosAndHashes | jq '.['$i']')
+    utxo=$(echo $obj | jq '.utxo')
+    datumHash=$(echo $obj | jq '.datumHash')
+    datumValue=$(get_datum_value_from_hash $(remove_quotes $datumHash) | jq -c '.json_value')
     datumValues="$datumValues $datumValue"
   done
+  echo $datumValues
   $qvf merge-datums $datumValues
 }
 
@@ -72,7 +73,7 @@ update_contract() {
   $cli query protocol-parameters $MAGIC --out-file $protocols
 
   # Construct the transaction:
-  $cli transaction build --babbage-era $MAGIC                            \
+  $cli transaction build --babbage-era $MAGIC                         \
       --tx-in $utxoFromDonor                                             \
       --tx-in-collateral $utxoFromDonor                                  \
       --tx-in $utxoAtScript                                              \
@@ -187,8 +188,8 @@ contribute_from_with() {
 #            <updated.datum>           \
 #            <action.redeemer>
 register_project() {
-  projectsPKH=$(cat WalletsKeys/$1.pkh)
-  projectsAddr=$(cat WalletsKeys/$1.addr)
+  projectsPKH=$(cat $preDir/$1.pkh)
+  projectsAddr=$(cat $preDir/$1.addr)
   txIn=$(get_first_utxo_of_wallet $projectsAddr)
   obj=$(get_random_utxo_hash_lovelaces $scriptAddr "$policyId$tokenName" 0 9 | jq -c .)
   obj=$(add_datum_value_to_utxo $obj)
@@ -200,5 +201,5 @@ register_project() {
        $currDatum    \
 	     $updatedDatum \
        $action
-  # update_contract $1 $txIn
+  update_contract $1 $txIn
 }

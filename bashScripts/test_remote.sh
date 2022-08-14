@@ -39,7 +39,7 @@ remoteCLI() {
 }
 
 
-urrent_state() {
+current_state() {
   utxosAndHashes=$(get_utxos_hashes_lovelaces $scriptAddr $policyId$tokenName)
   last=$(echo $utxosAndHashes | jq length)
   datumValues=""

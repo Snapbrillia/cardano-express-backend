@@ -2,19 +2,23 @@ const TransactionController = require("../controllers/transaction.controller");
 
 module.exports = function (app) {
   app.get(
-    "/app/transaction/get-adrress-utxos",
+    "/api/transaction/get-adrress-utxos",
     TransactionController.getAddressUtxos
   );
   app.post(
-    "/app/transaction/create-project-tx",
-    TransactionController.sendCreateProjectTransaction
+    "/api/transaction/cardano-build-tx",
+    TransactionController.sendBuiltTransaction
   );
   app.post(
-    "/app/transaction/create-signed-tx",
-    TransactionController.sendCreateProjectSignedTransaction
+    "/api/transaction/cardano-sign-tx",
+    TransactionController.sendSignedTransaction
   );
   app.post(
-    "/app/transaction/register-project",
-    TransactionController.registerProject
+    "/api/transaction/register-grant-to-blockchain",
+    TransactionController.registerGrant
+  );
+  app.post(
+    "/api/transaction/donate-grant-to-blockchain",
+    TransactionController.donateFundsToGrant
   );
 };

@@ -1,4 +1,4 @@
-. $HOME/cardano-express-backend/bashScripts/env.sh
+. $HOME/quadraticvoting/scripts/env.sh
 
 MAGIC="--testnet-magic 1097911063"
 

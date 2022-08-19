@@ -1,7 +1,7 @@
 . $HOME/cardano-express-backend/bashScripts/env.sh
 
 
-AUTH_ID=$(cat ../blockfrost.id)
+AUTH_ID="testnetUEYYJPhM1RhYsHGJaruXq2inBiDcvy56"
 URL="https://cardano-testnet.blockfrost.io/api/v0"
 
 remove_quotes() {

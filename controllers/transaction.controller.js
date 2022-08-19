@@ -1,19 +1,21 @@
 require("dotenv").config();
 const fetch = require("node-fetch");
 const { exec } = require("child_process");
-const { spawn } = require("child_process");
-const e = require("express");
-let fs = require("fs");
 const {
   BigNum,
   TransactionWitnessSet,
   Address,
-  TransactionUnspentOutput,
-  TransactionUnspentOutputs,
   TransactionOutput,
   Value,
   Transaction,
+  BaseAddress,
 } = require("@emurgo/cardano-serialization-lib-nodejs");
+const {
+  formatUtxos,
+  checkIfFundArrived,
+  createServerWallet,
+} = require("../services/transaction.service");
+import { v4 as uuidv4 } from "uuid";
 
 const getAddressUtxos = async (req, res) => {
   let myHeaders = new fetch.Headers();
@@ -35,127 +37,20 @@ const getAddressUtxos = async (req, res) => {
   res.json(fetch_json);
 };
 
-const checkIfWalletExists = async (userId) => {
-  return new Promise((resolve) => {
-    exec(
-      `find ${__dirname}/../testnet -name ` + userId + `*`,
-      (error, stdout, stderr) => {
-        if (error) {
-          console.log(`error: ${error.message}`);
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-        }
-        resolve(stdout ? true : false);
-      }
-    );
-  });
-};
-
-const formatUtxos = (rawUtxos) => {
-  let Utxos = [];
-  try {
-    for (const rawUtxo of rawUtxos) {
-      const utxo = TransactionUnspentOutput.from_bytes(
-        Buffer.from(rawUtxo, "hex")
-      );
-      const input = utxo.input();
-      const txid = Buffer.from(
-        input.transaction_id().to_bytes(),
-        "utf8"
-      ).toString("hex");
-      const txindx = input.index();
-      const output = utxo.output();
-      const amount = output.amount().coin().to_str();
-      const multiasset = output.amount().multiasset();
-      let multiAssetStr = "";
-
-      if (multiasset) {
-        const keys = multiasset.keys();
-        const N = keys.len();
-
-        for (let i = 0; i < N; i++) {
-          const policyId = keys.get(i);
-          const policyIdHex = Buffer.from(policyId.to_bytes(), "utf8").toString(
-            "hex"
-          );
-          const assets = multiasset.get(policyId);
-          const assetNames = assets.keys();
-          const K = assetNames.len();
-
-          for (let j = 0; j < K; j++) {
-            const assetName = assetNames.get(j);
-            const assetNameString = Buffer.from(
-              assetName.name(),
-              "utf8"
-            ).toString();
-            const assetNameHex = Buffer.from(assetName.name(), "utf8").toString(
-              "hex"
-            );
-            const multiassetAmt = multiasset.get_asset(policyId, assetName);
-            multiAssetStr += `+ ${multiassetAmt.to_str()} + ${policyIdHex}.${assetNameHex} (${assetNameString})`;
-          }
-        }
-      }
-
-      const obj = {
-        txid: txid,
-        txindx: txindx,
-        amount: amount,
-        str: `${txid} #${txindx} = ${amount}`,
-        multiAssetStr: multiAssetStr,
-        TransactionUnspentOutput: utxo,
-      };
-      Utxos.push(obj);
-    }
-    let txOutputs = TransactionUnspentOutputs.new();
-    for (const utxo of Utxos) {
-      txOutputs.add(utxo.TransactionUnspentOutput);
-    }
-    return txOutputs;
-  } catch (err) {
-    //TODO: Log error
-  }
-};
-
-const createServerWallet = async (userId) => {
-  return new Promise((resolve) => {
-    let addr = "";
-    const createWalletCommand = spawn("sh", [
-      __dirname + "/../bashScripts/wallet-gen.sh",
-      userId,
-    ]);
-    createWalletCommand.stderr.on("data", (data) => {
-      console.log(`stderr: ${data}`);
-    }),
-      createWalletCommand.stdout.on("data", (data) => {
-        addr += data.toString();
-      });
-    createWalletCommand.on("close", () => {
-      resolve(addr);
-    });
-  });
-};
-
-const sendCreateProjectTransaction = async (req, res) => {
+const sendBuiltTransaction = async (req, res) => {
   try {
     // the user id should be retrieved from the request body but is hardcoded for now
     // checks if the user has a wallet on our server already by using the find command on the walletKeys folder
     // which is where we are storing the wallets
-    const { userId } = req.body;
-    const walletExists = await checkIfWalletExists(userId);
-    let walletAddress = "";
-    if (walletExists) {
-      walletAddress = fs.readFileSync(
-        __dirname + "/../testnet/" + userId + ".addr",
-        "utf8"
-      );
-    } else {
-      walletAddress = await createServerWallet(userId);
+    const { changeAddress, rawUtxos, amount } = req.body;
+    if (!amount) {
+      amount = 10;
     }
+    const generatedWalletId = uuidv4();
+    const walletAddress = await createServerWallet(generatedWalletId);
 
     // the transaction is built and back to user to sign
-    const lovelaceToSend = 5000000;
+    const lovelaceToSend = amount * 1000000;
     const txBuilder = await initTransactionBuilder();
     const shelleyChangeAddress = Address.from_bytes(
       Buffer.from(changeAddress, "hex")
@@ -183,73 +78,160 @@ const sendCreateProjectTransaction = async (req, res) => {
       TransactionWitnessSet.from_bytes(transactionWitnessSet.to_bytes())
     );
     const transaction = Buffer.from(tx.to_bytes(), "utf8").toString("hex");
-    return res.json({ transaction, tx });
+
+    return res.json({
+      transaction,
+      walletAddress,
+    });
   } catch (err) {
     return res.status(500).json({ err: err });
   }
 };
 
-const sendCreateProjectSignedTransaction = async (req, res) => {
+const sendSignedTransaction = async (req, res) => {
   try {
-    // get the signed transaction from the user and
-    // and return a serialized transaction to the user
-    // so their wallet can send it to the cardano network
-    const { clientTxVkeyWitness, tx } = req.body;
+    const { vKeyWitness, transaction } = req.body;
+    const tx = Transaction.from_bytes(Buffer.from(transaction, "hex"));
+
     const transactionWitnessSet = TransactionWitnessSet.new();
     const txVkeyWitness = TransactionWitnessSet.from_bytes(
-      Buffer.from(clientTxVkeyWitness, "hex")
+      Buffer.from(vKeyWitness, "hex")
     );
-
-    transactionWitnessSet.set_vkeys(txVkeyWitness);
+    transactionWitnessSet.set_vkeys(txVkeyWitness.vkeys());
     const signedTx = Transaction.new(tx.body(), transactionWitnessSet);
-    return res.json({ signedTx });
+    const signedTransaction = Buffer.from(signedTx.to_bytes(), "utf8").toString(
+      "hex"
+    );
+    return res.json({ signedTransaction });
   } catch (err) {
-    return res.status(500).json({ err: err });
+    console.log(err);
+    return res.status(500).json({ error: err.message });
   }
 };
 
-// uses cli application to check if the funds have arrived
-// const checkIfFundsAreAvailable = async (req, res) => {
-//   try {
-//   } catch (err) {
-//     return res.status(500).json({ err: err });
-//   }
-// };
-
-// invoke the qvf-cli application to create a new project
-const registerProject = async (req, res) => {
+const registerGrant = async (req, res) => {
   // parameters are hardcoded for now for testing purposes
   try {
-    const { userId, projectLabel, requestedAmount } = req.body;
-    exec(
-      "source " +
-        __dirname +
-        "/../bashScripts/test_remote.sh && register_project" +
-        " " +
-        userId +
-        " " +
-        projectLabel +
-        " " +
-        requestedAmount,
-      (err, stdout, stderr) => {
-        if (err) {
-          console.log(err);
-        }
-        if (stderr) {
-          console.log(stderr);
-        }
-        console.log(stdout);
-        return res.json({ stdout });
+    const {
+      walletAddress,
+      projectLabel,
+      requestedAmount,
+      generatedWalletId,
+      changeAddress,
+    } = req.body;
+    let timeRan = 0;
+
+    const userChangeAddress = Address.from_bytes(
+      Buffer.from(changeAddress, "hex")
+    ).to_bech32();
+
+    const pkh = BaseAddress.from_address(
+      Address.from_bytes(Buffer.from(changeAddress, "hex"))
+    )
+      .payment_cred()
+      .to_keyhash();
+
+    const userWalletPKH = Buffer.from(pkh.to_bytes()).toString("hex");
+
+    const timeInterval = setInterval(async () => {
+      timeRan++;
+      if (timeRan > 12) {
+        clearInterval(timeInterval);
+        return res.status(500).json({ error: "Did not recieve fund" });
       }
-    );
+      const fundArrived = await checkIfFundArrived(walletAddress);
+
+      if (fundArrived) {
+        exec(
+          "source " +
+            userHomeDir +
+            "/quadraticvoting/scripts/main.sh && register_project" +
+            " " +
+            generatedWalletId +
+            " " +
+            userWalletPKH +
+            " " +
+            projectLabel +
+            " " +
+            requestedAmount * 1000000 +
+            " " +
+            userChangeAddress,
+          (err, stdout, stderr) => {
+            if (err) {
+              console.log(`error: ${err.message}`);
+            }
+            if (stderr) {
+              console.log(`stderr: ${stderr}`);
+            }
+            return res.json({ stdout, cardanoPkh: userPKH });
+          }
+        );
+        clearInterval(timeInterval);
+      }
+    }, 5000);
   } catch (err) {
-    return res.status(500).json({ err: err });
+    return res.status(500).json({ error: err });
+  }
+};
+
+const donateFundsToGrant = async (req, res) => {
+  try {
+    const {
+      walletAddress,
+      donateToProjectPkh,
+      donateAmount,
+      generatedWalletId,
+      changeAddress,
+    } = req.body;
+    let timeRan = 0;
+
+    const userChangeAddress = Address.from_bytes(
+      Buffer.from(changeAddress, "hex")
+    ).to_bech32();
+
+    const timeInterval = setInterval(async () => {
+      timeRan++;
+      if (timeRan > 12) {
+        clearInterval(timeInterval);
+        return res.status(500).json({ error: "Did not recieve fund" });
+      }
+      const fundArrived = await checkIfFundArrived(walletAddress);
+      if (fundArrived) {
+        exec(
+          "source " +
+            userHomeDir +
+            "/quadraticvoting/scripts/main.sh && donate_from_to_with" +
+            " " +
+            generatedWalletId +
+            " " +
+            donateToProjectPkh +
+            " " +
+            donateAmount * 1000000 +
+            " " +
+            userChangeAddress,
+          (err, stdout, stderr) => {
+            if (err) {
+              console.log(`error: ${err.message}`);
+            }
+            if (stderr) {
+              console.log(`stderr: ${stderr}`);
+            }
+            console.log(stdout);
+            return res.json({ stdout });
+          }
+        );
+        clearInterval(timeInterval);
+      }
+    }, 5000);
+  } catch (err) {
+    return res.status(500).json({ error: err });
   }
 };
 
 module.exports = {
-  sendCreateProjectTransaction,
+  sendBuiltTransaction,
   getAddressUtxos,
-  sendCreateProjectSignedTransaction,
-  registerProject,
+  sendSignedTransaction,
+  registerGrant,
+  donateFundsToGrant,
 };

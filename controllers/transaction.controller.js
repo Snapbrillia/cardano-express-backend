@@ -82,6 +82,7 @@ const sendBuiltTransaction = async (req, res) => {
     return res.json({
       transaction,
       walletAddress,
+      generatedWalletId,
     });
   } catch (err) {
     return res.status(500).json({ err: err });

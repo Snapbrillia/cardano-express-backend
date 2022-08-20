@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
-
+const cors = require("cors");
 app.set("view_engine", "ejs");
+app.use(cors());
+
 require("./routes/transaction.routes")(app);
 
 app.listen(8001, () => {

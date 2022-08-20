@@ -15,7 +15,7 @@ const {
   checkIfFundArrived,
   createServerWallet,
 } = require("../services/transaction.service");
-import { v4 as uuidv4 } from "uuid";
+const { uuid } = require("uuid").v4;
 
 const getAddressUtxos = async (req, res) => {
   let myHeaders = new fetch.Headers();
@@ -46,7 +46,7 @@ const sendBuiltTransaction = async (req, res) => {
     if (!amount) {
       amount = 10;
     }
-    const generatedWalletId = uuidv4();
+    const generatedWalletId = uuid();
     const walletAddress = await createServerWallet(generatedWalletId);
 
     // the transaction is built and back to user to sign

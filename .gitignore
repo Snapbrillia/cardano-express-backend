@@ -4,7 +4,6 @@
 /node_modules
 blockfrost.id
 package-lock.json
-.env
 payment.vkey
 payment.skey
 payment.addr

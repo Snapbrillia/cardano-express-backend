@@ -85,6 +85,7 @@ const sendBuiltTransaction = async (req, res) => {
       generatedWalletId,
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ err: err });
   }
 };
@@ -171,6 +172,7 @@ const registerGrant = async (req, res) => {
       }
     }, 5000);
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ error: err });
   }
 };
@@ -225,6 +227,7 @@ const donateFundsToGrant = async (req, res) => {
       }
     }, 5000);
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ error: err });
   }
 };

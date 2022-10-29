@@ -6,17 +6,17 @@ const generateGrantTx = async (req, res) => {
       walletAddress,
       pubKeyAddress,
       projectLabel,
-      requestedAmount,
+      fundraisingAmount,
       txIn,
       txOut,
     } = req.body;
     exec(
       "source " +
         __dirname +
-        "../quadraticVoting/scripts/register-project.sh " +
+        "/../../quadraticVoting/scripts/register-project.sh " +
         projectLabel +
         " " +
-        requestedAmount +
+        fundraisingAmount +
         " " +
         walletAddress +
         " " +
@@ -51,7 +51,7 @@ const generateDonateTx = async (req, res) => {
     exec(
       "source " +
         __dirname +
-        "../quadraticVoting/scripts/donate-to-project.sh " +
+        "/../../quadraticVoting/scripts/donate-to-project.sh " +
         projectTokenName +
         " " +
         donationAmount +

@@ -5,4 +5,8 @@ module.exports = function (app) {
     "/app/cardano/create-grant-tx",
     TransactionController.generateGrantTx
   );
+  app.post(
+    "/app/cardano/create-donate-tx",
+    TransactionController.generateDonateTx
+  );
 };

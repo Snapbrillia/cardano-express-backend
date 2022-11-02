@@ -6,9 +6,11 @@ const generateGrantTx = async (req, res) => {
       walletAddress,
       pubKeyAddress,
       projectLabel,
-      fundraisingAmount,
+      requestedAmount,
       txIn,
       txOut,
+      txCollateral,
+      projectIdUTxO,
     } = req.body;
     exec(
       "source " +
@@ -16,20 +18,28 @@ const generateGrantTx = async (req, res) => {
         "/../../quadraticVoting/scripts/register-project.sh " +
         projectLabel +
         " " +
-        fundraisingAmount +
+        requestedAmount +
         " " +
         walletAddress +
         " " +
         pubKeyAddress +
         " " +
+        projectIdUTxO +
+        " " +
         txIn +
+        " " +
+        txCollateral +
         " " +
         txOut,
       (err, stdout, stderr) => {
+        if (err) {
+          res.status(500).json({ error: err });
+        }
+        if (stderr) {
+          res.status(500).json({ error: stderr });
+        }
         if (stdout) {
           res.json({ stdout });
-        } else {
-          return res.status(500).json({ error: "Failed to build transaction" });
         }
       }
     );
@@ -46,6 +56,7 @@ const generateDonateTx = async (req, res) => {
       projectTokenName,
       donationAmount,
       txIn,
+      txCollateral,
       txOut,
     } = req.body;
     exec(
@@ -62,12 +73,18 @@ const generateDonateTx = async (req, res) => {
         " " +
         txIn +
         " " +
+        txCollateral +
+        " " +
         txOut,
       (err, stdout, stderr) => {
+        if (err) {
+          res.status(500).json({ error: err });
+        }
+        if (stderr) {
+          res.status(500).json({ error: stderr });
+        }
         if (stdout) {
           res.json({ stdout });
-        } else {
-          return res.status(500).json({ error: "Failed to build transaction" });
         }
       }
     );

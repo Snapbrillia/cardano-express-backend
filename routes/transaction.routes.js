@@ -9,4 +9,8 @@ module.exports = function (app) {
     "/app/cardano/create-donate-tx",
     TransactionController.generateDonateTx
   );
+  app.post(
+    "/app/cardano/create-bounty-credit-tx",
+    TransactionController.generateBountyCreditTx
+  );
 };

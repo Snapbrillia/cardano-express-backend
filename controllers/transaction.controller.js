@@ -93,7 +93,38 @@ const generateDonateTx = async (req, res) => {
   }
 };
 
+const generateBountyCreditTx = async (req, res) => {
+  try {
+    const { projectOwnerPkh, projectWalletAddress, projectTokenName } =
+      req.body;
+    exec(
+      "source " +
+        __dirname +
+        "/../../quadraticVoting/scripts/donate-to-project.sh " +
+        projectOwnerPkh +
+        " " +
+        projectWalletAddress +
+        " " +
+        projectTokenName,
+      (err, stdout, stderr) => {
+        if (err) {
+          res.status(500).json({ error: err });
+        }
+        if (stderr) {
+          res.status(500).json({ error: stderr });
+        }
+        if (stdout) {
+          res.json({ stdout });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
 module.exports = {
+  generateBountyCreditTx,
   generateGrantTx,
   generateDonateTx,
 };

@@ -11,6 +11,7 @@ const generateGrantTx = async (req, res) => {
       txOut,
       txCollateral,
       projectIdUTxO,
+      txOutCollateral,
     } = req.body;
     exec(
       "source " +
@@ -30,7 +31,9 @@ const generateGrantTx = async (req, res) => {
         " " +
         txCollateral +
         " " +
-        txOut,
+        txOut +
+        " " +
+        txOutCollateral,
       (err, stdout, stderr) => {
         if (err) {
           res.status(500).json({ error: err });
@@ -58,6 +61,7 @@ const generateDonateTx = async (req, res) => {
       txIn,
       txCollateral,
       txOut,
+      txOutCollateral,
     } = req.body;
     exec(
       "source " +
@@ -75,7 +79,9 @@ const generateDonateTx = async (req, res) => {
         " " +
         txCollateral +
         " " +
-        txOut,
+        txOut +
+        " " +
+        txOutCollateral,
       (err, stdout, stderr) => {
         if (err) {
           res.status(500).json({ error: err });
@@ -95,8 +101,16 @@ const generateDonateTx = async (req, res) => {
 
 const generateBountyCreditTx = async (req, res) => {
   try {
-    const { projectOwnerPkh, projectWalletAddress, projectTokenName } =
-      req.body;
+    const {
+      projectOwnerPkh,
+      projectWalletAddress,
+      projectTokenName,
+      txCollateral,
+      txIn,
+      txOut,
+      consumeAmount,
+      txOutCollateral,
+    } = req.body;
     exec(
       "source " +
         __dirname +
@@ -105,7 +119,17 @@ const generateBountyCreditTx = async (req, res) => {
         " " +
         projectWalletAddress +
         " " +
-        projectTokenName,
+        projectTokenName +
+        " " +
+        consumeAmount +
+        " " +
+        txIn +
+        " " +
+        txCollateral +
+        " " +
+        txOut +
+        "" +
+        txOutCollateral,
       (err, stdout, stderr) => {
         if (err) {
           res.status(500).json({ error: err });

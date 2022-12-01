@@ -114,7 +114,7 @@ const generateBountyCreditTx = async (req, res) => {
     exec(
       "source " +
         __dirname +
-        "/../../quadraticVoting/scripts/donate-to-project.sh " +
+        "/../../quadraticVoting/scripts/consume-bounty-utxo-tx.sh " +
         projectOwnerPkh +
         " " +
         projectWalletAddress +
@@ -147,8 +147,51 @@ const generateBountyCreditTx = async (req, res) => {
   }
 };
 
+const generateContributeToPoolTx = async () => {
+  try {
+    const {
+      sponsorAddress,
+      txCollateral,
+      txIn,
+      txOut,
+      contributeAmount,
+      txOutCollateral,
+    } = req.body;
+    exec(
+      "source " +
+        __dirname +
+        "/../../quadraticVoting/scripts/contribute.sh " +
+        sponsorAddress +
+        " " +
+        contributeAmount +
+        " " +
+        txIn +
+        " " +
+        txCollateral +
+        " " +
+        txOut +
+        "" +
+        txOutCollateral,
+      (err, stdout, stderr) => {
+        if (err) {
+          res.status(500).json({ error: err });
+        }
+        if (stderr) {
+          res.status(500).json({ error: stderr });
+        }
+        if (stdout) {
+          res.json({ stdout });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
 module.exports = {
   generateBountyCreditTx,
   generateGrantTx,
   generateDonateTx,
+  generateContributeToPoolTx,
 };

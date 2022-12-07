@@ -1,4 +1,5 @@
 const { exec } = require("child_process");
+const pathToScripts = "/../../quadraticvoting/scripts";
 
 const generateGrantTx = async (req, res) => {
   try {
@@ -8,15 +9,13 @@ const generateGrantTx = async (req, res) => {
       projectLabel,
       requestedAmount,
       txIn,
-      txOut,
       txCollateral,
-      projectIdUTxO,
-      txOutCollateral,
+      txOut,
     } = req.body;
     exec(
-      "source " +
+      "bash " +
         __dirname +
-        "/../../quadraticVoting/scripts/register-project.sh " +
+        `${pathToScripts}/register-project.sh ` +
         projectLabel +
         " " +
         requestedAmount +
@@ -25,25 +24,13 @@ const generateGrantTx = async (req, res) => {
         " " +
         pubKeyAddress +
         " " +
-        projectIdUTxO +
-        " " +
         txIn +
         " " +
         txCollateral +
         " " +
-        txOut +
-        " " +
-        txOutCollateral,
+        txOut,
       (err, stdout, stderr) => {
-        if (err) {
-          res.status(500).json({ error: err });
-        }
-        if (stderr) {
-          res.status(500).json({ error: stderr });
-        }
-        if (stdout) {
-          res.json({ stdout });
-        }
+        res.json({ stdout });
       }
     );
   } catch (err) {
@@ -61,12 +48,11 @@ const generateDonateTx = async (req, res) => {
       txIn,
       txCollateral,
       txOut,
-      txOutCollateral,
     } = req.body;
     exec(
-      "source " +
+      "bash " +
         __dirname +
-        "/../../quadraticVoting/scripts/donate-to-project.sh " +
+        `${pathToScripts}/donate-to-project.sh ` +
         projectTokenName +
         " " +
         donationAmount +
@@ -79,19 +65,9 @@ const generateDonateTx = async (req, res) => {
         " " +
         txCollateral +
         " " +
-        txOut +
-        " " +
-        txOutCollateral,
+        txOut,
       (err, stdout, stderr) => {
-        if (err) {
-          res.status(500).json({ error: err });
-        }
-        if (stderr) {
-          res.status(500).json({ error: stderr });
-        }
-        if (stdout) {
-          res.json({ stdout });
-        }
+        res.json({ stdout });
       }
     );
   } catch (err) {
@@ -102,41 +78,29 @@ const generateDonateTx = async (req, res) => {
 const generateBountyCreditTx = async (req, res) => {
   try {
     const {
-      projectOwnerPkh,
-      projectWalletAddress,
+      projectOwnerAddress,
       projectTokenName,
       txCollateral,
       txIn,
       txOut,
       consumeAmount,
-      txOutCollateral,
     } = req.body;
     exec(
-      "source " +
+      "bash " +
         __dirname +
-        "/../../quadraticVoting/scripts/consume-bounty-utxo-tx.sh " +
-        projectOwnerPkh +
-        " " +
-        projectWalletAddress +
-        " " +
+        `${pathToScripts}/consume-bounty-utxo-tx.sh ` +
         projectTokenName +
         " " +
         consumeAmount +
+        " " +
+        projectOwnerAddress +
         " " +
         txIn +
         " " +
         txCollateral +
         " " +
-        txOut +
-        "" +
-        txOutCollateral,
+        txOut,
       (err, stdout, stderr) => {
-        if (err) {
-          res.status(500).json({ error: err });
-        }
-        if (stderr) {
-          res.status(500).json({ error: stderr });
-        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -158,9 +122,9 @@ const generateContributeToPoolTx = async () => {
       txOutCollateral,
     } = req.body;
     exec(
-      "source " +
+      "bash " +
         __dirname +
-        "/../../quadraticVoting/scripts/contribute.sh " +
+        "/../../quadraticvoting/scripts/contribute.sh " +
         sponsorAddress +
         " " +
         contributeAmount +
@@ -173,12 +137,6 @@ const generateContributeToPoolTx = async () => {
         "" +
         txOutCollateral,
       (err, stdout, stderr) => {
-        if (err) {
-          res.status(500).json({ error: err });
-        }
-        if (stderr) {
-          res.status(500).json({ error: stderr });
-        }
         if (stdout) {
           res.json({ stdout });
         }

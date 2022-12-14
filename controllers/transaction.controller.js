@@ -9,7 +9,6 @@ const generateGrantTx = async (req, res) => {
       projectLabel,
       requestedAmount,
       txIn,
-      txCollateral,
       txOut,
     } = req.body;
     exec(
@@ -25,8 +24,6 @@ const generateGrantTx = async (req, res) => {
         pubKeyAddress +
         " " +
         txIn +
-        " " +
-        txCollateral +
         " " +
         txOut,
       (err, stdout, stderr) => {
@@ -63,8 +60,6 @@ const generateDonateTx = async (req, res) => {
         " " +
         txIn +
         " " +
-        txCollateral +
-        " " +
         txOut,
       (err, stdout, stderr) => {
         res.json({ stdout });
@@ -97,8 +92,6 @@ const generateBountyCreditTx = async (req, res) => {
         " " +
         txIn +
         " " +
-        txCollateral +
-        " " +
         txOut,
       (err, stdout, stderr) => {
         if (stdout) {
@@ -124,18 +117,35 @@ const generateContributeToPoolTx = async () => {
     exec(
       "bash " +
         __dirname +
-        "/../../quadraticvoting/scripts/contribute.sh " +
+        `${pathToScripts}/contribute.sh ` +
         sponsorAddress +
         " " +
         contributeAmount +
         " " +
         txIn +
         " " +
-        txCollateral +
-        " " +
         txOut +
         "" +
         txOutCollateral,
+      (err, stdout, stderr) => {
+        if (stdout) {
+          res.json({ stdout });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const signTransaction = (req, res) => {
+  try {
+    const { transactionCBOR } = req.body;
+    exec(
+      "bash " +
+        __dirname +
+        `${pathToScripts}/submit-transaction.sh ` +
+        transactionCBOR,
       (err, stdout, stderr) => {
         if (stdout) {
           res.json({ stdout });
@@ -152,4 +162,5 @@ module.exports = {
   generateGrantTx,
   generateDonateTx,
   generateContributeToPoolTx,
+  signTransaction,
 };

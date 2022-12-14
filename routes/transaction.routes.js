@@ -17,4 +17,8 @@ module.exports = function (app) {
     "/app/cardano/contribute-to-pool-tx",
     TransactionController.generateContributeToPoolTx
   );
+  app.post(
+    "/app/cardano/sign-transaction",
+    TransactionController.signTransaction
+  );
 };

@@ -9,7 +9,6 @@ const generateGrantTx = async (req, res) => {
       projectLabel,
       requestedAmount,
       txIn,
-      txCollateral,
       txOut,
     } = req.body;
     exec(
@@ -25,8 +24,6 @@ const generateGrantTx = async (req, res) => {
         pubKeyAddress +
         " " +
         txIn +
-        " " +
-        txCollateral +
         " " +
         txOut,
       (err, stdout, stderr) => {
@@ -46,7 +43,6 @@ const generateDonateTx = async (req, res) => {
       projectTokenName,
       donationAmount,
       txIn,
-      txCollateral,
       txOut,
     } = req.body;
     exec(
@@ -63,8 +59,6 @@ const generateDonateTx = async (req, res) => {
         " " +
         txIn +
         " " +
-        txCollateral +
-        " " +
         txOut,
       (err, stdout, stderr) => {
         res.json({ stdout });
@@ -80,7 +74,6 @@ const generateBountyCreditTx = async (req, res) => {
     const {
       projectOwnerAddress,
       projectTokenName,
-      txCollateral,
       txIn,
       txOut,
       consumeAmount,
@@ -97,8 +90,6 @@ const generateBountyCreditTx = async (req, res) => {
         " " +
         txIn +
         " " +
-        txCollateral +
-        " " +
         txOut,
       (err, stdout, stderr) => {
         if (stdout) {
@@ -113,29 +104,37 @@ const generateBountyCreditTx = async (req, res) => {
 
 const generateContributeToPoolTx = async () => {
   try {
-    const {
-      sponsorAddress,
-      txCollateral,
-      txIn,
-      txOut,
-      contributeAmount,
-      txOutCollateral,
-    } = req.body;
+    const { sponsorAddress, txIn, txOut, contributeAmount } = req.body;
     exec(
       "bash " +
         __dirname +
-        "/../../quadraticvoting/scripts/contribute.sh " +
+        `${pathToScripts}/contribute.sh ` +
         sponsorAddress +
         " " +
         contributeAmount +
         " " +
         txIn +
         " " +
-        txCollateral +
-        " " +
-        txOut +
-        "" +
-        txOutCollateral,
+        txOut,
+      (err, stdout, stderr) => {
+        if (stdout) {
+          res.json({ stdout });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const signTransaction = (req, res) => {
+  try {
+    const { transactionCBOR } = req.body;
+    exec(
+      "bash " +
+        __dirname +
+        `${pathToScripts}/submit-transaction.sh ` +
+        transactionCBOR,
       (err, stdout, stderr) => {
         if (stdout) {
           res.json({ stdout });
@@ -152,4 +151,5 @@ module.exports = {
   generateGrantTx,
   generateDonateTx,
   generateContributeToPoolTx,
+  signTransaction,
 };

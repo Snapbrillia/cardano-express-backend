@@ -43,7 +43,6 @@ const generateDonateTx = async (req, res) => {
       projectTokenName,
       donationAmount,
       txIn,
-      txCollateral,
       txOut,
     } = req.body;
     exec(
@@ -75,7 +74,6 @@ const generateBountyCreditTx = async (req, res) => {
     const {
       projectOwnerAddress,
       projectTokenName,
-      txCollateral,
       txIn,
       txOut,
       consumeAmount,
@@ -106,14 +104,7 @@ const generateBountyCreditTx = async (req, res) => {
 
 const generateContributeToPoolTx = async () => {
   try {
-    const {
-      sponsorAddress,
-      txCollateral,
-      txIn,
-      txOut,
-      contributeAmount,
-      txOutCollateral,
-    } = req.body;
+    const { sponsorAddress, txIn, txOut, contributeAmount } = req.body;
     exec(
       "bash " +
         __dirname +
@@ -124,9 +115,7 @@ const generateContributeToPoolTx = async () => {
         " " +
         txIn +
         " " +
-        txOut +
-        "" +
-        txOutCollateral,
+        txOut,
       (err, stdout, stderr) => {
         if (stdout) {
           res.json({ stdout });

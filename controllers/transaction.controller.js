@@ -1,5 +1,7 @@
+const os = require("os");
 const { exec } = require("child_process");
 const pathToScripts = "/../../quadraticvoting/scripts";
+const pathToRepo = `${os.homedir()}/quadraticvoting`;
 
 const generateGrantTx = async (req, res) => {
   try {
@@ -26,8 +28,11 @@ const generateGrantTx = async (req, res) => {
         txIn +
         " " +
         txOut,
+      { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        res.json({ stdout });
+        if (stdout) {
+          res.json({ stdout });
+        }
       }
     );
   } catch (err) {
@@ -60,8 +65,11 @@ const generateDonateTx = async (req, res) => {
         txIn +
         " " +
         txOut,
+      { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        res.json({ stdout });
+        if (stdout) {
+          res.json({ stdout });
+        }
       }
     );
   } catch (err) {
@@ -91,6 +99,7 @@ const generateBountyCreditTx = async (req, res) => {
         txIn +
         " " +
         txOut,
+      { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (stdout) {
           res.json({ stdout });
@@ -116,6 +125,7 @@ const generateContributeToPoolTx = async () => {
         txIn +
         " " +
         txOut,
+      { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (stdout) {
           res.json({ stdout });
@@ -135,6 +145,7 @@ const signTransaction = (req, res) => {
         __dirname +
         `${pathToScripts}/submit-transaction.sh ` +
         transactionCBOR,
+      { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (stdout) {
           res.json({ stdout });

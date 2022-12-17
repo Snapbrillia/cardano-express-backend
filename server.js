@@ -1,7 +1,10 @@
 const express = require("express");
 const app = express();
+const expressQueue = require("express-queue");
+const queueMw = expressQueue({ activeLimit: 1 });
 
 app.use(express.json());
+app.use(queueMw);
 
 require("dotenv").config();
 

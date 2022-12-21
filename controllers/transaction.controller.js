@@ -1,7 +1,5 @@
-const os = require("os");
 const { exec } = require("child_process");
-const pathToScripts = "/../../quadraticvoting/scripts";
-const pathToRepo = `${os.homedir()}/quadraticvoting`;
+const { pathToScripts, pathToRepo } = require("../shared.js");
 
 const generateGrantTx = async (req, res) => {
   try {
@@ -30,6 +28,12 @@ const generateGrantTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          res.json({ err: true });
+        }
+        if (stderr) {
+          res.json({ err: true });
+        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -67,6 +71,12 @@ const generateDonateTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          res.json({ err: true });
+        }
+        if (stderr) {
+          res.json({ err: true });
+        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -79,19 +89,11 @@ const generateDonateTx = async (req, res) => {
 
 const generateBountyCreditTx = async (req, res) => {
   try {
-    const {
-      projectOwnerAddress,
-      projectTokenName,
-      txIn,
-      txOut,
-      consumeAmount,
-    } = req.body;
+    const { projectOwnerAddress, txIn, txOut, consumeAmount } = req.body;
     exec(
       "bash " +
         __dirname +
-        `${pathToScripts}/consume-bounty-utxo-tx.sh ` +
-        projectTokenName +
-        " " +
+        `${pathToScripts}/consume-bounty-credit.sh ` +
         consumeAmount +
         " " +
         projectOwnerAddress +
@@ -101,6 +103,12 @@ const generateBountyCreditTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          res.json({ err: true });
+        }
+        if (stderr) {
+          res.json({ err: true });
+        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -127,6 +135,12 @@ const generateContributeToPoolTx = async () => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          res.json({ err: true });
+        }
+        if (stderr) {
+          res.json({ err: true });
+        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -147,6 +161,12 @@ const signTransaction = (req, res) => {
         transactionCBOR,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          res.json({ err: true });
+        }
+        if (stderr) {
+          res.json({ err: true });
+        }
         if (stdout) {
           res.json({ stdout });
         }

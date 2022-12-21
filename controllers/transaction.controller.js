@@ -28,12 +28,6 @@ const generateGrantTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -71,12 +65,6 @@ const generateDonateTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -103,12 +91,6 @@ const generateBountyCreditTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -135,12 +117,6 @@ const generateContributeToPoolTx = async () => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
         }
@@ -161,12 +137,6 @@ const signTransaction = (req, res) => {
         transactionCBOR,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
         }

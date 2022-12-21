@@ -7,14 +7,10 @@ const getProjectsInfo = async (req, res) => {
       "bash " + __dirname + `${pathToScripts}/emulate-outcome.sh`,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
+        } else {
+          res.json({ err });
         }
       }
     );
@@ -34,12 +30,6 @@ const getBountyCreditAmount = async (req, res) => {
         walletAddress,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
-        if (err) {
-          res.json({ err: true });
-        }
-        if (stderr) {
-          res.json({ err: true });
-        }
         if (stdout) {
           res.json({ stdout });
         }

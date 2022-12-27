@@ -10,7 +10,7 @@ const getProjectsInfo = async (req, res) => {
         if (stdout) {
           res.json({ stdout });
         } else {
-          res.json({ err });
+          res.json({ err: true });
         }
       }
     );

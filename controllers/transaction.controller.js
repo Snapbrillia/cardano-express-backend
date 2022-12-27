@@ -11,6 +11,7 @@ const generateGrantTx = async (req, res) => {
       txIn,
       txOut,
     } = req.body;
+
     exec(
       "bash " +
         __dirname +

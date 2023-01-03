@@ -21,11 +21,11 @@ const getProjectsInfo = async (req, res) => {
 
 const getBountyCreditAmount = async (req, res) => {
   try {
-    const { walletAddress } = req.body;
+    const { walletAddress } = req.params;
     exec(
       "bash " +
         __dirname +
-        `${pathToScripts}/emulate-outcome.sh` +
+        `${pathToScripts}/get-bounty-credit-amount.sh` +
         " " +
         walletAddress,
       { env: { ...process.env, REPO: pathToRepo } },

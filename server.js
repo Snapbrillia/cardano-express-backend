@@ -1,6 +1,7 @@
 // There are two express apps running on two different ports
 // One is running with express-queue and the other is running without express-queue
-// The one without the express-queue is getting the emulation results
+// The one without the express-queue are interactions that does not requre a queue such as
+// getting information about bounty credit and emulation results
 const express = require("express");
 const app = express();
 const expressQueue = require("express-queue");

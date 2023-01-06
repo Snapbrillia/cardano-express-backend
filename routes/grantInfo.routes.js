@@ -2,11 +2,11 @@ const GrantInfoController = require("../controllers/grantInfo.controller");
 
 module.exports = function (app) {
   app.get(
-    "/app/grants/get-emulation-result",
+    "/app/grant-info/get-emulation-result",
     GrantInfoController.getProjectsInfo
   );
   app.get(
-    "/app/grants/get-bounty-credit-amount/:walletAddress",
+    "/app/grant-info/get-bounty-credit-amount/:walletAddress",
     GrantInfoController.getBountyCreditAmount
   );
 };

@@ -2,23 +2,27 @@ const TransactionController = require("../controllers/transaction.controller");
 
 module.exports = function (app) {
   app.post(
-    "/app/cardano/create-grant-tx",
+    "/app/transaction/create-grant-tx",
     TransactionController.generateGrantTx
   );
   app.post(
-    "/app/cardano/create-donate-tx",
+    "/app/transaction/create-donate-tx",
     TransactionController.generateDonateTx
   );
   app.post(
-    "/app/cardano/create-bounty-credit-tx",
+    "/app/transaction/create-bounty-credit-tx",
     TransactionController.generateBountyCreditTx
   );
   app.post(
-    "/app/cardano/contribute-to-pool-tx",
+    "/app/transaction/contribute-to-pool-tx",
     TransactionController.generateContributeToPoolTx
   );
   app.post(
-    "/app/cardano/sign-transaction",
+    "/app/transaction/sign-transaction",
     TransactionController.signTransaction
+  );
+  app.get(
+    "/app/transaction/get-network-status/:getStatusOf",
+    TransactionController.getNetworkStatus
   );
 };

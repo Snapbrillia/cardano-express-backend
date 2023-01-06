@@ -147,10 +147,32 @@ const signTransaction = (req, res) => {
   }
 };
 
+const getNetworkStatus = async (req, res) => {
+  try {
+    const { getStatusOf } = req.params;
+    exec(
+      "bash " +
+        __dirname +
+        `${pathToScripts}/get-network-status.sh` +
+        " " +
+        getStatusOf,
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (stdout) {
+          res.json({ stdout });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
 module.exports = {
   generateBountyCreditTx,
   generateGrantTx,
   generateDonateTx,
   generateContributeToPoolTx,
   signTransaction,
+  getNetworkStatus,
 };

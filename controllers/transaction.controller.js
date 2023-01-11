@@ -204,7 +204,7 @@ const submitProjectRegistrationQueue = async (req, res) => {
         fundraisingAmount +
         " " +
         walletAddress,
-      { env: { ...process.env, REPO: pathToRepo, QUEUE: "true" } },
+      { env: { ...process.env, REPO: pathToRepo, QUEUE: "1" } },
       (err, stdout, stderr) => {
         if (err) {
           return res.json({ err: err, success: false });
@@ -258,7 +258,7 @@ const submitDonationQueue = async (req, res) => {
         donationAmount +
         " " +
         walletAddress,
-      { env: { ...process.env, REPO: pathToRepo, QUEUE: "true" } },
+      { env: { ...process.env, REPO: pathToRepo, QUEUE: "1" } },
       (err, stdout, stderr) => {
         if (err) {
           return res.json({ err: err, success: false });

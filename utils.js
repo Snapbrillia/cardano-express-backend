@@ -1,6 +1,6 @@
 const os = require("os");
-const pathToScripts = "/../../quadraticvoting/scripts";
 const pathToRepo = `${os.homedir()}/quadraticvoting`;
+const pathToScripts = `${pathToRepo}/scripts`;
 
 module.exports = {
   pathToScripts,

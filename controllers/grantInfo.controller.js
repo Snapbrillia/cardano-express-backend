@@ -1,4 +1,4 @@
-const { pathToScripts, pathToRepo } = require("../shared.js");
+const { pathToScripts, pathToRepo } = require("../utils.js");
 const { exec } = require("child_process");
 
 const getProjectsInfo = async (req, res) => {
@@ -7,10 +7,14 @@ const getProjectsInfo = async (req, res) => {
       "bash " + __dirname + `${pathToScripts}/emulate-outcome.sh`,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
-        } else {
-          res.json({ err: true });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -30,8 +34,14 @@ const getBountyCreditAmount = async (req, res) => {
         walletAddress,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );

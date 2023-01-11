@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const { pathToScripts, pathToRepo } = require("../shared.js");
+const { pathToScripts, pathToRepo, isUTxOPresent } = require("../utils.js");
 
 const generateGrantTx = async (req, res) => {
   try {
@@ -13,7 +13,6 @@ const generateGrantTx = async (req, res) => {
     } = req.body;
     exec(
       "bash " +
-        __dirname +
         `${pathToScripts}/register-project.sh ` +
         `"${projectLabel}"` +
         " " +
@@ -28,8 +27,14 @@ const generateGrantTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -50,7 +55,6 @@ const generateDonateTx = async (req, res) => {
     } = req.body;
     exec(
       "bash " +
-        __dirname +
         `${pathToScripts}/donate-to-project.sh ` +
         projectTokenName +
         " " +
@@ -65,8 +69,14 @@ const generateDonateTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -80,7 +90,6 @@ const generateBountyCreditTx = async (req, res) => {
     const { projectOwnerAddress, txIn, txOut, consumeAmount } = req.body;
     exec(
       "bash " +
-        __dirname +
         `${pathToScripts}/consume-bounty-credit.sh ` +
         consumeAmount +
         " " +
@@ -91,8 +100,14 @@ const generateBountyCreditTx = async (req, res) => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -106,7 +121,6 @@ const generateContributeToPoolTx = async () => {
     const { sponsorAddress, txIn, txOut, contributeAmount } = req.body;
     exec(
       "bash " +
-        __dirname +
         `${pathToScripts}/contribute.sh ` +
         sponsorAddress +
         " " +
@@ -117,8 +131,14 @@ const generateContributeToPoolTx = async () => {
         txOut,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -131,14 +151,17 @@ const signTransaction = (req, res) => {
   try {
     const { transactionCBOR } = req.body;
     exec(
-      "bash " +
-        __dirname +
-        `${pathToScripts}/submit-transaction.sh ` +
-        transactionCBOR,
+      "bash " + `${pathToScripts}/submit-transaction.sh ` + transactionCBOR,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -147,19 +170,104 @@ const signTransaction = (req, res) => {
   }
 };
 
-const getNetworkStatus = async (req, res) => {
+const getWalletAddressToSendAda = (req, res) => {
+  const { walletAddress } = req.params;
   try {
-    const { getStatusOf } = req.params;
     exec(
-      "bash " +
-        __dirname +
-        `${pathToScripts}/get-network-status.sh` +
-        " " +
-        getStatusOf,
+      "bash " + `${pathToScripts}/get-custodial-wallet.sh ` + walletAddress,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
         if (stdout) {
-          res.json({ stdout });
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (error) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const submitProjectRegistrationQueue = async (req, res) => {
+  const { projectLabel, fundraisingAmount, walletAddress } = req.body;
+  try {
+    exec(
+      "bash " +
+        `${pathToScripts}/register-project.sh ` +
+        projectLabel +
+        " " +
+        fundraisingAmount +
+        " " +
+        walletAddress,
+      { env: { ...process.env, REPO: pathToRepo, QUEUE: "true" } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const checkIfUTxOPresent = async (req, res) => {
+  const { walletAddress } = req.params;
+  try {
+    exec(
+      "bash " +
+        `${pathToScripts}/check-if-utxo-present.sh ` +
+        `${walletAddress}`,
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const submitDonationQueue = async (req, res) => {
+  const { walletAddress, donationAmount, projectTokenName } = req.body;
+  try {
+    exec(
+      "bash " +
+        `${pathToScripts}/donate-to-project.sh ` +
+        projectTokenName +
+        " " +
+        donationAmount +
+        " " +
+        walletAddress,
+      { env: { ...process.env, REPO: pathToRepo, QUEUE: "true" } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
         }
       }
     );
@@ -174,5 +282,8 @@ module.exports = {
   generateDonateTx,
   generateContributeToPoolTx,
   signTransaction,
-  getNetworkStatus,
+  getWalletAddressToSendAda,
+  submitProjectRegistrationQueue,
+  submitDonationQueue,
+  checkIfUTxOPresent,
 };

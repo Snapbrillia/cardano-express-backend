@@ -14,7 +14,7 @@ module.exports = function (app) {
     TransactionController.generateBountyCreditTx
   );
   app.post(
-    "/app/transaction/contribute-to-pool-tx",
+    "/app/transaction/create-contribute-to-pool-tx",
     TransactionController.generateContributeToPoolTx
   );
   app.post(
@@ -22,7 +22,19 @@ module.exports = function (app) {
     TransactionController.signTransaction
   );
   app.get(
-    "/app/transaction/get-network-status/:getStatusOf",
-    TransactionController.getNetworkStatus
+    "/app/transaction/get-wallet-address-to-send-ada/:walletAddress",
+    TransactionController.getWalletAddressToSendAda
+  );
+  app.get(
+    "/app/transaction/check-if-utxo-present/:walletAddress",
+    TransactionController.checkIfUTxOPresent
+  );
+  app.post(
+    "/app/transaction/submit-project-registration-queue",
+    TransactionController.submitProjectRegistrationQueue
+  );
+  app.post(
+    "/app/transaction/submit-donation-queue",
+    TransactionController.submitDonationQueue
   );
 };

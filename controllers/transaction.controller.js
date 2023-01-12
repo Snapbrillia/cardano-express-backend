@@ -199,7 +199,7 @@ const submitProjectRegistrationQueue = async (req, res) => {
     exec(
       "bash " +
         `${pathToScripts}/register-project.sh ` +
-        projectLabel +
+        `"${projectLabel}"` +
         " " +
         fundraisingAmount +
         " " +

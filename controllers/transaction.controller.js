@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const { pathToScripts, pathToRepo, isUTxOPresent } = require("../utils.js");
+const { pathToScripts, pathToRepo } = require("../utils.js");
 
 const generateGrantTx = async (req, res) => {
   try {
@@ -204,7 +204,7 @@ const submitProjectRegistrationQueue = async (req, res) => {
         fundraisingAmount +
         " " +
         walletAddress,
-      { env: { ...process.env, REPO: pathToRepo, QUEUE: "1" } },
+      { env: { ...process.env, REPO: pathToRepo, QUEUE: "True" } },
       (err, stdout, stderr) => {
         if (err) {
           return res.json({ err: err, success: false });
@@ -258,7 +258,7 @@ const submitDonationQueue = async (req, res) => {
         donationAmount +
         " " +
         walletAddress,
-      { env: { ...process.env, REPO: pathToRepo, QUEUE: "1" } },
+      { env: { ...process.env, REPO: pathToRepo, QUEUE: "True" } },
       (err, stdout, stderr) => {
         if (err) {
           return res.json({ err: err, success: false });

@@ -18,8 +18,12 @@ module.exports = function (app) {
     TransactionController.generateContributeToPoolTx
   );
   app.post(
-    "/app/transaction/sign-transaction",
-    TransactionController.signTransaction
+    "/app/transaction/sign-donation-transaction",
+    TransactionController.signDonationTransaction
+  );
+  app.post(
+    "/app/transaction/sign-project-registration-transaction",
+    TransactionController.signRegistrationTransaction
   );
   app.get(
     "/app/transaction/get-wallet-address-to-send-ada/:walletAddress",

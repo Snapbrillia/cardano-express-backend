@@ -147,12 +147,49 @@ const generateContributeToPoolTx = async () => {
   }
 };
 
-const signTransaction = (req, res) => {
+const signDonationTransaction = (req, res) => {
   try {
-    const { transactionCBOR } = req.body;
+    const { transactionCBOR, projectTokenName } = req.body;
     exec(
-      "bash " + `${pathToScripts}/submit-transaction.sh ` + transactionCBOR,
-      { env: { ...process.env, REPO: pathToRepo } },
+      "bash " +
+        `${pathToScripts}/collateral-key-holder-sign-transaction.sh ` +
+        transactionCBOR +
+        " " +
+        projectTokenName,
+      { env: { ...process.env, REPO: pathToRepo, SIGNDONATION: "True" } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const signRegistrationTransaction = (req, res) => {
+  try {
+    const { transactionCBOR, projectTokenName } = req.body;
+    exec(
+      "bash " +
+        `${pathToScripts}/collateral-key-holder-sign-transaction.sh ` +
+        transactionCBOR +
+        " " +
+        projectTokenName,
+      {
+        env: {
+          ...process.env,
+          REPO: pathToRepo,
+          SIGNREGISTRATION: "True",
+        },
+      },
       (err, stdout, stderr) => {
         if (err) {
           return res.json({ err: err, success: false });
@@ -281,9 +318,10 @@ module.exports = {
   generateGrantTx,
   generateDonateTx,
   generateContributeToPoolTx,
-  signTransaction,
+  signDonationTransaction,
   getWalletAddressToSendAda,
   submitProjectRegistrationQueue,
   submitDonationQueue,
   checkIfUTxOPresent,
+  signRegistrationTransaction,
 };

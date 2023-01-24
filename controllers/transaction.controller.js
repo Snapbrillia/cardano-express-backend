@@ -156,7 +156,7 @@ const signDonationTransaction = (req, res) => {
         transactionCBOR +
         " " +
         projectTokenName,
-      { env: { ...process.env, REPO: pathToRepo, SIGNDONATION: "True" } },
+      { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
           return res.json({ err: err, success: false });
@@ -187,7 +187,7 @@ const signRegistrationTransaction = (req, res) => {
         env: {
           ...process.env,
           REPO: pathToRepo,
-          SIGNREGISTRATION: "True",
+          SIGN_REGISTRATION_TX: "True",
         },
       },
       (err, stdout, stderr) => {

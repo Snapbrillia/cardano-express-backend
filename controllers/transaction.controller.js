@@ -182,13 +182,11 @@ const signRegistrationTransaction = (req, res) => {
         `${pathToScripts}/collateral-key-holder-sign-transaction.sh ` +
         transactionCBOR +
         " " +
-        projectTokenName,
+        projectTokenName +
+        " " +
+        "--sign-registration-tx",
       {
-        env: {
-          ...process.env,
-          REPO: pathToRepo,
-          SIGN_REGISTRATION_TX: "True",
-        },
+        env: { ...process.env, REPO: pathToRepo },
       },
       (err, stdout, stderr) => {
         if (err) {

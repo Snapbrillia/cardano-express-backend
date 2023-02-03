@@ -4,7 +4,7 @@ const { exec } = require("child_process");
 const getProjectsInfo = async (req, res) => {
   try {
     exec(
-      "bash " + __dirname + `${pathToScripts}/emulate-outcome.sh`,
+      "bash " + `${pathToScripts}/emulate-outcome.sh`,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
@@ -28,7 +28,6 @@ const getBountyCreditAmount = async (req, res) => {
     const { walletAddress } = req.params;
     exec(
       "bash " +
-        __dirname +
         `${pathToScripts}/get-bounty-credit-amount.sh` +
         " " +
         walletAddress,

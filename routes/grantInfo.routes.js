@@ -9,4 +9,8 @@ module.exports = function (app) {
     "/app/grant-info/get-bounty-credit-amount/:walletAddress",
     GrantInfoController.getBountyCreditAmount
   );
+  app.get(
+    "/app/grant-info/get-match-pool-amount",
+    GrantInfoController.getMatchPoolAmount
+  );
 };

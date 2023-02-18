@@ -45,4 +45,8 @@ module.exports = function (app) {
     "/app/transaction/contribute-to-match-pool",
     TransactionController.contributeToMatchPool
   );
+  app.post(
+    "/app/transaction/sign-contribution-transaction",
+    TransactionController.signContributionTransaction
+  );
 };

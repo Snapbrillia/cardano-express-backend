@@ -346,6 +346,35 @@ const contributeToMatchPool = (req, res) => {
   }
 };
 
+const signContributionTransaction = (req, res) => {
+  try {
+    const { transactionCBOR } = req.body;
+    exec(
+      "bash " +
+        `${pathToScripts}/collateral-key-holder-sign-transaction.sh ` +
+        transactionCBOR +
+        " " +
+        "''" +
+        " " +
+        "--sign-contribution-tx",
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
 module.exports = {
   generateBountyCreditTx,
   generateGrantTx,
@@ -358,4 +387,5 @@ module.exports = {
   checkIfUTxOPresent,
   signRegistrationTransaction,
   contributeToMatchPool,
+  signContributionTransaction,
 };

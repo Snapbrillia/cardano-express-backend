@@ -41,4 +41,8 @@ module.exports = function (app) {
     "/app/transaction/submit-donation-queue",
     TransactionController.submitDonationQueue
   );
+  app.post(
+    "/app/transaction/contribute-to-match-pool",
+    TransactionController.contributeToMatchPool
+  );
 };

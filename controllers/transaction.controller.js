@@ -315,6 +315,37 @@ const submitDonationQueue = async (req, res) => {
   }
 };
 
+const contributeToMatchPool = (req, res) => {
+  try {
+    const { walletAddress, contributeAmount, txIn, txOut } = req.body;
+    exec(
+      "bash " +
+        `${pathToScripts}/contribute.sh ` +
+        walletAddress +
+        " " +
+        contributeAmount +
+        " " +
+        txIn +
+        " " +
+        txOut,
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
 module.exports = {
   generateBountyCreditTx,
   generateGrantTx,
@@ -326,4 +357,5 @@ module.exports = {
   submitDonationQueue,
   checkIfUTxOPresent,
   signRegistrationTransaction,
+  contributeToMatchPool,
 };

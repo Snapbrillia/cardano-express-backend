@@ -116,7 +116,7 @@ const generateBountyCreditTx = async (req, res) => {
   }
 };
 
-const generateContributeToPoolTx = async () => {
+const generateContributeToPoolTx = async (req, res) => {
   try {
     const { walletAddress, txIn, txOut, contributeAmount } = req.body;
     exec(

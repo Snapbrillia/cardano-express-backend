@@ -122,9 +122,9 @@ const generateContributeToPoolTx = async () => {
     exec(
       "bash " +
         `${pathToScripts}/contribute.sh ` +
-        sponsorAddress +
-        " " +
         contributeAmount +
+        " " +
+        sponsorAddress +
         " " +
         txIn +
         " " +
@@ -346,7 +346,7 @@ const contributeToMatchPool = (req, res) => {
   }
 };
 
-const signContributionTransaction = (req, res) => {
+const signContributeMatchPoolTransaction = (req, res) => {
   try {
     const { transactionCBOR } = req.body;
     exec(
@@ -357,6 +357,35 @@ const signContributionTransaction = (req, res) => {
         "''" +
         " " +
         "--sign-contribution-tx",
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const submitContributeMatchPoolQueue = (req, res) => {
+  try {
+    const { walletAddress, contributeAmount } = req.body;
+    exec(
+      "bash " +
+        `${pathToScripts}/contribute.sh ` +
+        walletAddress +
+        " " +
+        contributeAmount +
+        " " +
+        "--queue",
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
@@ -387,5 +416,6 @@ module.exports = {
   checkIfUTxOPresent,
   signRegistrationTransaction,
   contributeToMatchPool,
-  signContributionTransaction,
+  signContributeMatchPoolTransaction,
+  submitContributeMatchPoolQueue,
 };

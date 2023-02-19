@@ -42,11 +42,15 @@ module.exports = function (app) {
     TransactionController.submitDonationQueue
   );
   app.post(
-    "/app/transaction/contribute-to-match-pool",
+    "/app/transaction/create-contribute-to-match-pool-tx",
     TransactionController.contributeToMatchPool
   );
   app.post(
-    "/app/transaction/sign-contribution-transaction",
-    TransactionController.signContributionTransaction
+    "/app/transaction/sign-contribute-to-match-pool-transaction",
+    TransactionController.signContributeMatchPoolTransaction
+  );
+  app.post(
+    "/app/transaction/submit-contribute-to-match-pool-queue",
+    TransactionController.submitContributeMatchPoolQueue
   );
 };

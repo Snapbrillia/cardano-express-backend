@@ -118,13 +118,13 @@ const generateBountyCreditTx = async (req, res) => {
 
 const generateContributeToPoolTx = async () => {
   try {
-    const { sponsorAddress, txIn, txOut, contributeAmount } = req.body;
+    const { walletAddress, txIn, txOut, contributeAmount } = req.body;
     exec(
       "bash " +
         `${pathToScripts}/contribute.sh ` +
         contributeAmount +
         " " +
-        sponsorAddress +
+        walletAddress +
         " " +
         txIn +
         " " +
@@ -205,42 +205,17 @@ const signRegistrationTransaction = (req, res) => {
   }
 };
 
-const getWalletAddressToSendAda = (req, res) => {
-  const { walletAddress } = req.params;
+const signContributeMatchPoolTransaction = (req, res) => {
   try {
-    exec(
-      "bash " + `${pathToScripts}/get-custodial-wallet.sh ` + walletAddress,
-      { env: { ...process.env, REPO: pathToRepo } },
-      (err, stdout, stderr) => {
-        if (err) {
-          return res.json({ err: err, success: false });
-        }
-        if (stderr) {
-          return res.json({ stderr: stderr, success: false });
-        }
-        if (stdout) {
-          return res.json({ stdout: stdout, success: true });
-        }
-      }
-    );
-  } catch (error) {
-    return res.status(500).json({ err: err });
-  }
-};
-
-const submitProjectRegistrationQueue = async (req, res) => {
-  const { projectLabel, fundraisingAmount, walletAddress } = req.body;
-  try {
+    const { transactionCBOR } = req.body;
     exec(
       "bash " +
-        `${pathToScripts}/register-project.sh ` +
-        `"${projectLabel}"` +
+        `${pathToScripts}/collateral-key-holder-sign-transaction.sh ` +
+        transactionCBOR +
         " " +
-        fundraisingAmount +
+        "''" +
         " " +
-        walletAddress +
-        " " +
-        "--queue",
+        "--sign-contribution-tx",
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
@@ -259,13 +234,19 @@ const submitProjectRegistrationQueue = async (req, res) => {
   }
 };
 
-const checkIfUTxOPresent = async (req, res) => {
-  const { walletAddress } = req.params;
+const submitProjectRegistrationQueue = async (req, res) => {
+  const { projectLabel, fundraisingAmount, walletAddress } = req.body;
   try {
     exec(
       "bash " +
-        `${pathToScripts}/check-if-utxo-present.sh ` +
-        `${walletAddress}`,
+        `${pathToScripts}/register-project.sh ` +
+        `"${projectLabel}"` +
+        " " +
+        fundraisingAmount +
+        " " +
+        walletAddress +
+        " " +
+        "--queue",
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
@@ -315,77 +296,65 @@ const submitDonationQueue = async (req, res) => {
   }
 };
 
-const contributeToMatchPool = (req, res) => {
-  try {
-    const { walletAddress, contributeAmount, txIn, txOut } = req.body;
-    exec(
-      "bash " +
-        `${pathToScripts}/contribute.sh ` +
-        walletAddress +
-        " " +
-        contributeAmount +
-        " " +
-        txIn +
-        " " +
-        txOut,
-      { env: { ...process.env, REPO: pathToRepo } },
-      (err, stdout, stderr) => {
-        if (err) {
-          return res.json({ err: err, success: false });
-        }
-        if (stderr) {
-          return res.json({ stderr: stderr, success: false });
-        }
-        if (stdout) {
-          return res.json({ stdout: stdout, success: true });
-        }
-      }
-    );
-  } catch (err) {
-    return res.status(500).json({ err: err });
-  }
-};
-
-const signContributeMatchPoolTransaction = (req, res) => {
-  try {
-    const { transactionCBOR } = req.body;
-    exec(
-      "bash " +
-        `${pathToScripts}/collateral-key-holder-sign-transaction.sh ` +
-        transactionCBOR +
-        " " +
-        "''" +
-        " " +
-        "--sign-contribution-tx",
-      { env: { ...process.env, REPO: pathToRepo } },
-      (err, stdout, stderr) => {
-        if (err) {
-          return res.json({ err: err, success: false });
-        }
-        if (stderr) {
-          return res.json({ stderr: stderr, success: false });
-        }
-        if (stdout) {
-          return res.json({ stdout: stdout, success: true });
-        }
-      }
-    );
-  } catch (err) {
-    return res.status(500).json({ err: err });
-  }
-};
-
 const submitContributeMatchPoolQueue = (req, res) => {
   try {
     const { walletAddress, contributeAmount } = req.body;
     exec(
       "bash " +
         `${pathToScripts}/contribute.sh ` +
-        walletAddress +
-        " " +
         contributeAmount +
         " " +
+        walletAddress +
+        " " +
         "--queue",
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const getWalletAddressToSendAda = (req, res) => {
+  const { walletAddress } = req.params;
+  try {
+    exec(
+      "bash " + `${pathToScripts}/get-custodial-wallet.sh ` + walletAddress,
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (error) {
+    return res.status(500).json({ err: err });
+  }
+};
+
+const checkIfUTxOPresent = async (req, res) => {
+  const { walletAddress } = req.params;
+  try {
+    exec(
+      "bash " +
+        `${pathToScripts}/check-if-utxo-present.sh ` +
+        `${walletAddress}`,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
@@ -410,12 +379,11 @@ module.exports = {
   generateDonateTx,
   generateContributeToPoolTx,
   signDonationTransaction,
-  getWalletAddressToSendAda,
+  signRegistrationTransaction,
+  signContributeMatchPoolTransaction,
   submitProjectRegistrationQueue,
   submitDonationQueue,
-  checkIfUTxOPresent,
-  signRegistrationTransaction,
-  contributeToMatchPool,
-  signContributeMatchPoolTransaction,
   submitContributeMatchPoolQueue,
+  getWalletAddressToSendAda,
+  checkIfUTxOPresent,
 };

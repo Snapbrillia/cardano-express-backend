@@ -13,4 +13,8 @@ module.exports = function (app) {
     "/app/grant-info/get-match-pool-amount",
     GrantInfoController.getMatchPoolAmount
   );
+  app.get(
+    "/app/grant-info/get-current-funding-round",
+    GrantInfoController.getCurrentFundingRound
+  );
 };

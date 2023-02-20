@@ -25,13 +25,9 @@ module.exports = function (app) {
     "/app/transaction/sign-project-registration-transaction",
     TransactionController.signRegistrationTransaction
   );
-  app.get(
-    "/app/transaction/get-wallet-address-to-send-ada/:walletAddress",
-    TransactionController.getWalletAddressToSendAda
-  );
-  app.get(
-    "/app/transaction/check-if-utxo-present/:walletAddress",
-    TransactionController.checkIfUTxOPresent
+  app.post(
+    "/app/transaction/sign-contribute-to-match-pool-transaction",
+    TransactionController.signContributeMatchPoolTransaction
   );
   app.post(
     "/app/transaction/submit-project-registration-queue",
@@ -40,5 +36,17 @@ module.exports = function (app) {
   app.post(
     "/app/transaction/submit-donation-queue",
     TransactionController.submitDonationQueue
+  );
+  app.post(
+    "/app/transaction/submit-contribute-to-match-pool-queue",
+    TransactionController.submitContributeMatchPoolQueue
+  );
+  app.get(
+    "/app/transaction/get-wallet-address-to-send-ada/:walletAddress",
+    TransactionController.getWalletAddressToSendAda
+  );
+  app.get(
+    "/app/transaction/check-if-utxo-present/:walletAddress",
+    TransactionController.checkIfUTxOPresent
   );
 };

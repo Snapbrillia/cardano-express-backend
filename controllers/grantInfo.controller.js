@@ -71,8 +71,31 @@ const getMatchPoolAmount = async (req, res) => {
   }
 };
 
+const getCurrentFundingRound = async (req, res) => {
+  try {
+    exec(
+      "bash " + `${pathToScripts}/get-current-funding-round.sh`,
+      { env: { ...process.env, REPO: pathToRepo } },
+      (err, stdout, stderr) => {
+        if (err) {
+          return res.json({ err: err, success: false });
+        }
+        if (stderr) {
+          return res.json({ stderr: stderr, success: false });
+        }
+        if (stdout) {
+          return res.json({ stdout: stdout, success: true });
+        }
+      }
+    );
+  } catch (err) {
+    return res.status(500).json({ err: err });
+  }
+};
+
 module.exports = {
   getProjectsInfo,
   getBountyCreditAmount,
   getMatchPoolAmount,
+  getCurrentFundingRound,
 };

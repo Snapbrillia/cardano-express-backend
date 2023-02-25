@@ -17,4 +17,8 @@ module.exports = function (app) {
     "/app/grant-info/get-current-funding-round",
     GrantInfoController.getCurrentFundingRound
   );
+  app.get(
+    "/app/grant-info/get-current-state",
+    GrantInfoController.getContractStateInfo
+  );
 };

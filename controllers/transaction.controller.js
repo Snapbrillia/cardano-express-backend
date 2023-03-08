@@ -85,19 +85,15 @@ const generateDonateTx = async (req, res) => {
   }
 };
 
-const generateBountyCreditTx = async (req, res) => {
+const consumeBountyCreditTx = async (req, res) => {
   try {
-    const { projectOwnerAddress, txIn, txOut, consumeAmount } = req.body;
+    const { projectOwnerAddress, consumeAmount } = req.body;
     exec(
       "bash " +
         `${pathToScripts}/consume-bounty-credit.sh ` +
         consumeAmount +
         " " +
-        projectOwnerAddress +
-        " " +
-        txIn +
-        " " +
-        txOut,
+        projectOwnerAddress,
       { env: { ...process.env, REPO: pathToRepo } },
       (err, stdout, stderr) => {
         if (err) {
@@ -374,7 +370,7 @@ const checkIfUTxOPresent = async (req, res) => {
 };
 
 module.exports = {
-  generateBountyCreditTx,
+  consumeBountyCreditTx,
   generateGrantTx,
   generateDonateTx,
   generateContributeToPoolTx,

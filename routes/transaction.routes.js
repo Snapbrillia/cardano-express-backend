@@ -10,8 +10,8 @@ module.exports = function (app) {
     TransactionController.generateDonateTx
   );
   app.post(
-    "/app/transaction/create-bounty-credit-tx",
-    TransactionController.generateBountyCreditTx
+    "/app/transaction/consume-bounty-credit-tx",
+    TransactionController.consumeBountyCreditTx
   );
   app.post(
     "/app/transaction/create-contribute-to-pool-tx",
